@@ -61,6 +61,7 @@ export const settingsApi = {
   getTransactions: () => api.get('/settings/transactions'),
   addTransaction: (data) => api.post('/settings/transactions', data),
   deleteTransaction: (id) => api.delete(`/settings/transactions/${id}`),
+  resetAllData: () => api.post('/settings/reset-data'),
 };
 
 export default api;

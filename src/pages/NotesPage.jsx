@@ -12,7 +12,8 @@ import {
   Brain,
   AlertTriangle,
   Lightbulb,
-  TrendingUp
+  TrendingUp,
+  Hash
 } from 'lucide-react';
 import { notesApi } from '../services/api';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -35,6 +36,15 @@ const categoryIcons = {
   'Important Lesson': Lightbulb,
   'Trading Psychology': Brain,
   'Future Improvement': BookOpen,
+};
+
+const categoryBadgeStyles = {
+  'Market Observation': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  'Trading Strategy': 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  'Mistakes': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  'Important Lesson': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  'Trading Psychology': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  'Future Improvement': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
 };
 
 const NotesPage = () => {
@@ -143,60 +153,68 @@ const NotesPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 text-slate-100">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Notes & Observations</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black text-slate-100 tracking-tight">Notes & Observations</h1>
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              Discipline Log
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 mt-1 font-mono">
             Capture market insights, trading psychology reflections, rules, and post-trade reviews
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-500/20"
+          className="inline-flex items-center px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
         >
-          <Plus className="w-4 h-4 mr-1.5" />
+          <Plus className="w-4 h-4 mr-1.5 stroke-[2.5]" />
           Create Note
         </button>
       </div>
 
       {/* Search and Category Filter Bar */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <div className="bg-dark-card p-4 rounded-2xl border border-dark-border shadow-lg shadow-black/30 space-y-3">
         <form onSubmit={handleSearchSubmit} className="relative w-full">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             placeholder="Search note titles or content..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full text-xs sm:text-sm pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+            className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 rounded-xl bg-dark-bg border border-dark-border text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/60 font-mono transition-colors"
           />
         </form>
 
         {/* Categories Pills */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
-                selectedCategory === cat
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-thin">
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  isSelected
+                    ? 'bg-emerald-500 text-black font-bold shadow-md shadow-emerald-500/20'
+                    : 'bg-dark-bg text-slate-400 hover:text-slate-200 border border-dark-border hover:border-slate-700'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Notes Grid */}
       {loading ? (
         <div className="flex justify-center p-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
         </div>
       ) : notes.length === 0 ? (
         <EmptyState
@@ -210,30 +228,31 @@ const NotesPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {notes.map((note) => {
             const IconComponent = categoryIcons[note.category] || FileText;
+            const badgeClass = categoryBadgeStyles[note.category] || 'bg-slate-500/10 text-slate-400 border-slate-500/20';
 
             return (
               <div
                 key={note.id}
-                className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow transition-shadow flex flex-col justify-between group"
+                className="bg-dark-card rounded-2xl p-5 border border-dark-border shadow-lg shadow-black/20 hover:border-slate-700 transition-all flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${badgeClass}`}>
                       <IconComponent className="w-3 h-3 mr-1" />
                       {note.category}
                     </span>
 
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => handleOpenEdit(note)}
-                        className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-dark-bg transition-colors"
                         title="Edit"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => setNoteToDelete(note)}
-                        className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -241,24 +260,24 @@ const NotesPage = () => {
                     </div>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 mt-2.5 leading-snug">
+                  <h3 className="text-base font-bold text-slate-100 mt-3 leading-snug group-hover:text-emerald-400 transition-colors">
                     {note.title}
                   </h3>
 
-                  <p className="text-xs text-slate-600 mt-2 line-clamp-4 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-xs text-slate-300 mt-2 line-clamp-4 leading-relaxed whitespace-pre-wrap font-sans">
                     {note.description}
                   </p>
                 </div>
 
                 {/* Footer metadata */}
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                <div className="mt-4 pt-3 border-t border-dark-border flex items-center justify-between text-[11px] text-slate-500 font-mono">
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-slate-400" />
+                    <Calendar className="w-3 h-3 text-slate-500" />
                     {note.relatedDate || (note.createdAt ? note.createdAt.slice(0, 10) : 'General')}
                   </span>
                   {note.relatedTradeId && (
-                    <span className="text-blue-600 font-semibold">
-                      Trade #{note.relatedTradeId}
+                    <span className="text-emerald-400 font-bold flex items-center gap-0.5">
+                      <Hash className="w-3 h-3" /> Trade {note.relatedTradeId}
                     </span>
                   )}
                 </div>
@@ -270,90 +289,96 @@ const NotesPage = () => {
 
       {/* Add / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-3xl p-6 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-dark-card w-full max-w-lg rounded-2xl p-6 shadow-2xl border border-dark-border text-slate-100">
+            <div className="flex items-center justify-between border-b border-dark-border pb-3">
+              <h3 className="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-400" />
                 {editingNote ? 'Edit Observation Note' : 'Create New Observation Note'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-dark-bg transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSaveNote} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Title *</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Respecting intraday VWAP rejection"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 font-semibold"
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-semibold"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Category *</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">Category *</label>
                   <select
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-xl bg-white focus:outline-none focus:border-blue-500"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-slate-100 focus:outline-none focus:border-emerald-500"
                   >
-                    {CATEGORIES.filter(c => c !== 'All').map(c => (
-                      <option key={c} value={c}>{c}</option>
+                    {CATEGORIES.filter((c) => c !== 'All').map((c) => (
+                      <option key={c} value={c} className="bg-dark-card text-slate-200">
+                        {c}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Related Date</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">Related Date</label>
                   <input
                     type="date"
                     value={form.relatedDate}
                     onChange={(e) => setForm({ ...form, relatedDate: e.target.value })}
-                    className="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
+                    className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-slate-100 focus:outline-none focus:border-emerald-500 font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Related Trade ID (Optional)</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Related Trade ID (Optional)</label>
                 <input
                   type="number"
                   placeholder="e.g. 12"
                   value={form.relatedTradeId}
                   onChange={(e) => setForm({ ...form, relatedTradeId: e.target.value })}
-                  className="w-full text-xs sm:text-sm px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
+                  className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-dark-bg border border-dark-border rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-500 font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Description / Notes *</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Description / Notes *</label>
                 <textarea
                   rows={4}
                   required
                   placeholder="Elaborate on market behavior, rules reinforced, or behavioral emotions..."
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full text-xs sm:text-sm p-3 border border-slate-200 rounded-xl resize-none focus:outline-none focus:border-blue-500"
+                  className="w-full text-xs sm:text-sm p-3 bg-dark-bg border border-dark-border rounded-xl text-slate-100 placeholder-slate-600 resize-none focus:outline-none focus:border-emerald-500 leading-relaxed"
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-3 pt-2">
+              <div className="flex items-center justify-end space-x-3 pt-2 border-t border-dark-border">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 bg-dark-bg border border-dark-border hover:border-slate-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black active:scale-95 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
                 >
                   {submitting ? 'Saving...' : editingNote ? 'Update Note' : 'Save Note'}
                 </button>

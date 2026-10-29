@@ -4,31 +4,50 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 min-h-screen font-sans;
+    @apply bg-[#080c14] text-slate-100 min-h-screen font-sans;
+    color-scheme: dark;
   }
 }
 
-/* Custom scrollbars */
+/* Trading terminal custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #080c14;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #1e293b;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #10b981;
+}
+
+/* Candlestick & Trading Glow Effects */
+.glow-profit {
+  box-shadow: 0 0 20px -3px rgba(16, 185, 129, 0.25);
+}
+
+.glow-loss {
+  box-shadow: 0 0 20px -3px rgba(239, 68, 68, 0.25);
+}
+
+.terminal-border {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.terminal-card {
+  background: #0f1623;
+  border: 1px solid #1e293b;
 }
 
 /* Notebook styling for replica mode */
 .notebook-page {
   background-color: #ffffff;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
   position: relative;
 }
 
@@ -39,20 +58,8 @@
   bottom: 0;
   left: 28px;
   width: 2px;
-  background-color: #fca5a5; /* notebook margin line */
+  background-color: #fca5a5;
   pointer-events: none;
-}
-
-.notebook-spiral {
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px,
-    transparent 18px,
-    #94a3b8 18px,
-    #475569 22px,
-    transparent 22px,
-    transparent 40px
-  );
 }
 
 @media print {
@@ -64,5 +71,6 @@
   }
   body {
     background: white !important;
+    color: black !important;
   }
 }

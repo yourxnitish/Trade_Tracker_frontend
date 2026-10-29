@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Plus, Wallet, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Menu, Plus, Wallet, Calendar as CalendarIcon, Clock, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from '../context/SettingsContext';
 import { dashboardApi } from '../services/api';
@@ -44,52 +44,55 @@ const Navbar = ({ onMenuClick }) => {
   });
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-[#080c14]/90 backdrop-blur-md border-b border-[#1a2333]">
       <div className="flex items-center space-x-3">
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 lg:hidden"
+          className="p-2 rounded-lg text-slate-400 hover:bg-slate-800 lg:hidden"
           aria-label="Open sidebar"
         >
           <Menu className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-sm font-semibold text-slate-900 tracking-tight sm:text-base">
-            TradeTrack Journal
+          <h1 className="text-sm font-bold text-white tracking-tight sm:text-base flex items-center gap-2">
+            <span>TradeTrack Terminal</span>
+            <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              ● PRO
+            </span>
           </h1>
-          <p className="text-xs text-slate-500 hidden sm:block">Record, review, and elevate your trading discipline</p>
+          <p className="text-[11px] text-slate-500 hidden sm:block font-medium">Real-time Trading Journal & Performance Analytics</p>
         </div>
       </div>
 
       <div className="flex items-center space-x-3 sm:space-x-4">
         {/* Date and time display */}
-        <div className="hidden md:flex items-center space-x-3 text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200/80">
-          <span className="flex items-center gap-1.5">
-            <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
+        <div className="hidden md:flex items-center space-x-3 text-xs font-mono font-medium text-slate-400 bg-[#0f1726] px-3 py-1.5 rounded-xl border border-[#1e293b]">
+          <span className="flex items-center gap-1.5 text-slate-300">
+            <CalendarIcon className="w-3.5 h-3.5 text-slate-500" />
             {formattedDate}
           </span>
-          <span className="text-slate-300">|</span>
-          <span className="flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-slate-600">|</span>
+          <span className="flex items-center gap-1.5 text-emerald-400">
+            <Clock className="w-3.5 h-3.5 text-emerald-500" />
             {formattedTime}
           </span>
         </div>
 
         {/* Current Balance Chip */}
         {currentBalance !== null && (
-          <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50/80 border border-blue-200/70 rounded-xl text-blue-900 text-xs font-semibold">
-            <Wallet className="w-4 h-4 text-blue-600 flex-shrink-0" />
-            <span className="hidden sm:inline text-blue-700/80 font-normal">Balance:</span>
-            <span className="font-bold">{formatCurrency(currentBalance)}</span>
+          <div className="flex items-center space-x-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-semibold shadow-sm shadow-emerald-500/10">
+            <Wallet className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="hidden sm:inline text-emerald-500/80 font-normal">Balance:</span>
+            <span className="font-bold font-mono">{formatCurrency(currentBalance)}</span>
           </div>
         )}
 
-        {/* Add Trade Quick Button */}
+        {/* Add Trade Quick Button (Vivid Green) */}
         <button
           onClick={() => navigate('/add-trade')}
-          className="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-500/20"
+          className="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 text-black hover:bg-emerald-400 active:scale-95 transition-all shadow-md shadow-emerald-500/20"
         >
-          <Plus className="w-4 h-4 mr-1.5" />
+          <Plus className="w-4 h-4 mr-1 stroke-[3]" />
           <span>Add Trade</span>
         </button>
       </div>

@@ -8,10 +8,10 @@ import {
   TrendingDown,
   AlertCircle,
   CheckCircle2,
-  HelpCircle,
   Clock,
   Calendar,
-  Sparkles
+  Sparkles,
+  Zap
 } from 'lucide-react';
 import { tradesApi } from '../services/api';
 import { useSettings } from '../context/SettingsContext';
@@ -46,7 +46,7 @@ const AddTradePage = () => {
     exitReason: '',
     marketConditions: 'Normal',
     emotionalStateBefore: 'Calm & Disciplined',
-    emotionalStateAfter: 'Satisfied',
+    emotionalStateAfter: 'Satisfied with Execution',
     mistakes: '',
     lessonsLearned: '',
     notes: '',
@@ -57,7 +57,6 @@ const AddTradePage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Auto populate if converted from watchlist or editing
   useEffect(() => {
     if (isEditMode) {
       tradesApi.getTradeById(id)
@@ -85,7 +84,7 @@ const AddTradePage = () => {
             exitReason: t.exitReason || '',
             marketConditions: t.marketConditions || 'Normal',
             emotionalStateBefore: t.emotionalStateBefore || 'Calm & Disciplined',
-            emotionalStateAfter: t.emotionalStateAfter || 'Satisfied',
+            emotionalStateAfter: t.emotionalStateAfter || 'Satisfied with Execution',
             mistakes: t.mistakes || '',
             lessonsLearned: t.lessonsLearned || '',
             notes: t.notes || '',
@@ -96,7 +95,6 @@ const AddTradePage = () => {
         })
         .finally(() => setFetching(false));
     } else {
-      // Check query params for watchlist convert
       const sym = searchParams.get('symbol');
       const inst = searchParams.get('instrumentName');
       const ex = searchParams.get('exchange');
@@ -120,13 +118,11 @@ const AddTradePage = () => {
     }
   }, [id, isEditMode, searchParams]);
 
-  // Handle Input Changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Live PnL & Risk/Reward Calculations
   const calculateLiveMetrics = () => {
     const entry = parseFloat(formData.entryPrice) || 0;
     const exit = parseFloat(formData.exitPrice) || 0;
@@ -175,7 +171,6 @@ const AddTradePage = () => {
 
   const metrics = calculateLiveMetrics();
 
-  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -215,7 +210,7 @@ const AddTradePage = () => {
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
       </div>
     );
   }
@@ -227,24 +222,29 @@ const AddTradePage = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+            className="p-2 rounded-xl bg-[#0f1726] border border-[#1e293b] text-slate-400 hover:text-white hover:border-slate-600 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              {isEditMode ? `Edit Trade #${id}` : 'Record New Trade'}
+            <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+              <span>{isEditMode ? `Edit Trade Entry #${id}` : 'Record New Trade Entry'}</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                formData.direction === 'LONG' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+              }`}>
+                {formData.direction}
+              </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500">
-              {isEditMode ? 'Update historical parameters and notes' : 'Enter trade details for analysis and automated journal tracking'}
+            <p className="text-xs text-slate-400 font-mono">
+              REAL-TIME RISK/REWARD ENGINE • LIVE GROSS/NET AUDIT
             </p>
           </div>
         </div>
 
         {/* Live Net Preview Pill */}
-        <div className="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-xl border font-semibold text-xs shadow-sm bg-white border-slate-200">
-          <span className="text-slate-500">Live Net P/L:</span>
-          <span className={`font-bold ${metrics.netPnl >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+        <div className="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-xl border font-mono font-bold text-xs bg-[#0f1726] border-[#1e293b]">
+          <span className="text-slate-400">Live P/L:</span>
+          <span className={metrics.netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}>
             {formatCurrency(metrics.netPnl)}
           </span>
         </div>
@@ -252,14 +252,14 @@ const AddTradePage = () => {
 
       {/* Feedback Messages */}
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center space-x-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs sm:text-sm flex items-center space-x-2">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-400" />
           <span>{error}</span>
         </div>
       )}
       {success && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center space-x-2">
-          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600" />
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm flex items-center space-x-2">
+          <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
           <span>Trade successfully saved to database! Redirecting...</span>
         </div>
       )}
@@ -268,54 +268,54 @@ const AddTradePage = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* Section 1: Basic Information */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            1. Basic Information
+        <div className="bg-[#0f1726] rounded-3xl p-6 border border-[#1e293b] shadow-xl space-y-4">
+          <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2 border-b border-[#1e293b] pb-3">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            1. Trade Identifier & Direction
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Trade Date *</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Trade Date *</label>
               <input
                 type="date"
                 name="tradeDate"
                 required
                 value={formData.tradeDate}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Entry Time</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Entry Time</label>
               <input
                 type="time"
                 name="entryTime"
                 value={formData.entryTime}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Exit Time</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Exit Time</label>
               <input
                 type="time"
                 name="exitTime"
                 value={formData.exitTime}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Exchange</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Exchange</label>
               <select
                 name="exchange"
                 value={formData.exchange}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
                 <option value="NSE">NSE</option>
                 <option value="BSE">BSE</option>
@@ -328,7 +328,20 @@ const AddTradePage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Instrument Name *</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Trading Symbol *</label>
+              <input
+                type="text"
+                name="symbol"
+                required
+                placeholder="e.g. RELIANCE, NIFTY"
+                value={formData.symbol}
+                onChange={handleChange}
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 uppercase font-mono font-bold"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Instrument Name *</label>
               <input
                 type="text"
                 name="instrumentName"
@@ -336,30 +349,17 @@ const AddTradePage = () => {
                 placeholder="e.g. Reliance Industries"
                 value={formData.instrumentName}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Trading Symbol *</label>
-              <input
-                type="text"
-                name="symbol"
-                required
-                placeholder="e.g. RELIANCE"
-                value={formData.symbol}
-                onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 uppercase"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Segment</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Segment</label>
               <select
                 name="segment"
                 value={formData.segment}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
                 <option value="Equity">Equity</option>
                 <option value="Intraday">Intraday</option>
@@ -371,15 +371,15 @@ const AddTradePage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Trade Status *</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Trade Status *</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, status: 'CLOSED' }))}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2 text-xs font-bold rounded-xl border transition-all font-mono ${
                     formData.status === 'CLOSED'
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-slate-700 text-white border-slate-500'
+                      : 'bg-[#080c14] text-slate-400 border-[#1e293b]'
                   }`}
                 >
                   CLOSED
@@ -387,10 +387,10 @@ const AddTradePage = () => {
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, status: 'OPEN' }))}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2 text-xs font-bold rounded-xl border transition-all font-mono ${
                     formData.status === 'OPEN'
-                      ? 'bg-amber-500 text-white border-amber-500'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-amber-500 text-black border-amber-400 shadow-md shadow-amber-500/20'
+                      : 'bg-[#080c14] text-slate-400 border-[#1e293b]'
                   }`}
                 >
                   OPEN
@@ -398,29 +398,31 @@ const AddTradePage = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Direction *</label>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Direction (Buy / Sell) *</label>
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, direction: 'LONG' }))}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2.5 text-xs font-black rounded-xl border transition-all font-mono flex items-center justify-center gap-1.5 ${
                     formData.direction === 'LONG'
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-emerald-500 text-black border-emerald-400 shadow-lg shadow-emerald-500/30'
+                      : 'bg-[#080c14] text-slate-400 border-[#1e293b] hover:border-emerald-500/50'
                   }`}
                 >
+                  <TrendingUp className="w-4 h-4 stroke-[3]" />
                   BUY / LONG
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, direction: 'SHORT' }))}
-                  className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                  className={`py-2.5 text-xs font-black rounded-xl border transition-all font-mono flex items-center justify-center gap-1.5 ${
                     formData.direction === 'SHORT'
-                      ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-600/30'
+                      : 'bg-[#080c14] text-slate-400 border-[#1e293b] hover:border-rose-500/50'
                   }`}
                 >
+                  <TrendingDown className="w-4 h-4 stroke-[3]" />
                   SELL / SHORT
                 </button>
               </div>
@@ -429,21 +431,21 @@ const AddTradePage = () => {
         </div>
 
         {/* Section 2: Trade Execution & Price Details */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              2. Trade Pricing & Live P/L Calculation
+        <div className="bg-[#0f1726] rounded-3xl p-6 border border-[#1e293b] shadow-xl space-y-4">
+          <div className="flex items-center justify-between border-b border-[#1e293b] pb-3">
+            <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              2. Execution Prices & Live Financial Preview
             </h2>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Calculator className="w-4 h-4 text-blue-600" />
-              <span>Auto calculated</span>
+            <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
+              <Calculator className="w-4 h-4" />
+              <span>DYNAMIC FORMULA</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Entry Price *</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Entry Price *</label>
               <input
                 type="number"
                 step="0.01"
@@ -453,13 +455,13 @@ const AddTradePage = () => {
                 placeholder="0.00"
                 value={formData.entryPrice}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Exit Price {formData.status === 'CLOSED' ? '*' : '(Optional for Open)'}
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
+                Exit Price {formData.status === 'CLOSED' ? '*' : '(Holding Position)'}
               </label>
               <input
                 type="number"
@@ -471,12 +473,12 @@ const AddTradePage = () => {
                 value={formData.exitPrice}
                 onChange={handleChange}
                 disabled={formData.status === 'OPEN'}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold disabled:bg-slate-100 disabled:text-slate-400"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono font-bold disabled:opacity-40"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Quantity *</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Quantity *</label>
               <input
                 type="number"
                 step="any"
@@ -486,40 +488,40 @@ const AddTradePage = () => {
                 placeholder="1"
                 value={formData.quantity}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono font-bold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Target Price</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Target Price</label>
               <input
                 type="number"
                 step="0.01"
                 min="0.01"
                 name="targetPrice"
-                placeholder="Planned target"
+                placeholder="Planned Target"
                 value={formData.targetPrice}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Stop Loss (SL)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Stop Loss (SL)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0.01"
                 name="stopLoss"
-                placeholder="Planned stop loss"
+                placeholder="Risk SL"
                 value={formData.stopLoss}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Brokerage</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Brokerage</label>
               <input
                 type="number"
                 step="0.01"
@@ -528,12 +530,12 @@ const AddTradePage = () => {
                 placeholder="20.00"
                 value={formData.brokerage}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Other Charges (STT, GST)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Other Fees (STT/GST)</label>
               <input
                 type="number"
                 step="0.01"
@@ -542,69 +544,73 @@ const AddTradePage = () => {
                 placeholder="5.00"
                 value={formData.otherCharges}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Trading Strategy</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Trading Strategy</label>
               <input
                 type="text"
                 name="strategy"
-                placeholder="e.g. Breakout, Pullback, CPR"
+                placeholder="e.g. VWAP Breakout, Retest"
                 value={formData.strategy}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500"
               />
             </div>
           </div>
 
-          {/* Live Calculation Preview Banner */}
-          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-slate-800 text-white flex flex-wrap items-center justify-between gap-4">
+          {/* Terminal Live Calculation Glow Banner */}
+          <div className="mt-4 p-5 rounded-2xl bg-[#080c14] border border-[#1e293b] flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
             <div>
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Live Realized Net P/L</span>
-              <span className={`text-2xl font-bold tracking-tight ${metrics.netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono block">
+                Live Net Realized P/L
+              </span>
+              <span className={`text-3xl font-black font-mono tracking-tight ${
+                metrics.netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'
+              }`}>
                 {formData.status === 'OPEN' ? 'Holding Open' : formatCurrency(metrics.netPnl)}
               </span>
               {formData.status === 'CLOSED' && (
-                <span className="text-xs text-slate-400 block mt-0.5">
-                  Gross: {formatCurrency(metrics.grossPnl)} • Charges: {formatCurrency((parseFloat(formData.brokerage) || 0) + (parseFloat(formData.otherCharges) || 0))}
+                <span className="text-xs text-slate-400 font-mono block mt-1">
+                  Gross: <span className="text-slate-200">{formatCurrency(metrics.grossPnl)}</span> • Total Fees: <span className="text-slate-200">{formatCurrency((parseFloat(formData.brokerage) || 0) + (parseFloat(formData.otherCharges) || 0))}</span>
                 </span>
               )}
             </div>
 
-            <div className="flex gap-4 sm:gap-6 text-xs border-l border-slate-700 pl-4 sm:pl-6">
+            <div className="flex gap-4 sm:gap-6 text-xs font-mono border-l border-[#1e293b] pl-4 sm:pl-6">
               <div>
-                <span className="text-slate-400 block">Risk Amount:</span>
-                <span className="font-bold text-rose-400">{formatCurrency(metrics.riskAmount)}</span>
+                <span className="text-slate-400 block text-[10px]">Risk Amount</span>
+                <span className="font-bold text-rose-400 text-sm">{formatCurrency(metrics.riskAmount)}</span>
               </div>
               <div>
-                <span className="text-slate-400 block">Reward Amount:</span>
-                <span className="font-bold text-emerald-400">{formatCurrency(metrics.rewardAmount)}</span>
+                <span className="text-slate-400 block text-[10px]">Reward Amount</span>
+                <span className="font-bold text-emerald-400 text-sm">{formatCurrency(metrics.rewardAmount)}</span>
               </div>
               <div>
-                <span className="text-slate-400 block">Planned R:R:</span>
-                <span className="font-bold text-blue-400">{metrics.rrRatio ? `1 : ${metrics.rrRatio}` : '-'}</span>
+                <span className="text-slate-400 block text-[10px]">Planned R:R</span>
+                <span className="font-bold text-blue-400 text-sm">{metrics.rrRatio ? `1 : ${metrics.rrRatio}` : '-'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Section 3: Psychology, Reflection & Learnings (From Physical Notebook) */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+        {/* Section 3: Psychology & Qualitative Review */}
+        <div className="bg-[#0f1726] rounded-3xl p-6 border border-[#1e293b] shadow-xl space-y-4">
+          <h2 className="text-sm font-bold text-white font-mono uppercase tracking-wider flex items-center gap-2 border-b border-[#1e293b] pb-3">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             3. Qualitative Reflection & Trading Psychology
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Market Conditions</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Market Conditions</label>
               <select
                 name="marketConditions"
                 value={formData.marketConditions}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
                 <option value="Trending Bullish">Trending Bullish</option>
                 <option value="Trending Bearish">Trending Bearish</option>
@@ -615,28 +621,28 @@ const AddTradePage = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Emotional State Before Trade</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Emotional State Before</label>
               <select
                 name="emotionalStateBefore"
                 value={formData.emotionalStateBefore}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
                 <option value="Calm & Disciplined">Calm & Disciplined</option>
                 <option value="Confident Setup">Confident Setup</option>
                 <option value="Anxious / Hesitant">Anxious / Hesitant</option>
-                <option value="FOMO (Fear of Missing Out)">FOMO (Fear of Missing Out)</option>
+                <option value="FOMO (Fear of Missing Out)">FOMO</option>
                 <option value="Revenge Trading">Revenge Trading</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Emotional State After Trade</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Emotional State After</label>
               <select
                 name="emotionalStateAfter"
                 value={formData.emotionalStateAfter}
                 onChange={handleChange}
-                className="w-full text-sm px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 bg-white"
+                className="w-full text-sm px-3 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
                 <option value="Satisfied with Execution">Satisfied with Execution</option>
                 <option value="Relieved">Relieved</option>
@@ -649,65 +655,65 @@ const AddTradePage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Reason for Entering</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Reason for Entering</label>
               <textarea
                 name="entryReason"
                 rows={2}
                 placeholder="Technical trigger, chart pattern, volume confirmation..."
                 value={formData.entryReason}
                 onChange={handleChange}
-                className="w-full text-sm p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full text-sm p-3 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Reason for Exiting</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Reason for Exiting</label>
               <textarea
                 name="exitReason"
                 rows={2}
-                placeholder="Target hit, trailing stop-loss, reversal sign, time of day..."
+                placeholder="Target hit, trailing stop-loss, reversal sign..."
                 value={formData.exitReason}
                 onChange={handleChange}
-                className="w-full text-sm p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full text-sm p-3 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 resize-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Mistakes Made (if any)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Mistakes Made (if any)</label>
               <textarea
                 name="mistakes"
                 rows={2}
-                placeholder="Entered prematurely, moved stop-loss, oversized position..."
+                placeholder="Moved stop-loss, oversized position, early exit..."
                 value={formData.mistakes}
                 onChange={handleChange}
-                className="w-full text-sm p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full text-sm p-3 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-rose-500 resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Lessons Learned</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Lessons Learned</label>
               <textarea
                 name="lessonsLearned"
                 rows={2}
                 placeholder="Actionable takeaway for future trades..."
                 value={formData.lessonsLearned}
                 onChange={handleChange}
-                className="w-full text-sm p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full text-sm p-3 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 resize-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Personal Notes</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Personal Notes</label>
             <textarea
               name="notes"
               rows={2}
               placeholder="Any additional thoughts or general observations..."
               value={formData.notes}
               onChange={handleChange}
-              className="w-full text-sm p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full text-sm p-3 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500 resize-none"
             />
           </div>
         </div>
@@ -717,17 +723,17 @@ const AddTradePage = () => {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"
+            className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 bg-[#0f1726] border border-[#1e293b] hover:text-white hover:border-slate-600 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center px-6 py-2.5 rounded-xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-500/20 disabled:opacity-50"
+            className="inline-flex items-center px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-black hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50"
           >
-            <Save className="w-4 h-4 mr-2" />
-            {loading ? 'Saving...' : isEditMode ? 'Update Trade' : 'Save Trade Record'}
+            <Save className="w-4 h-4 mr-2 stroke-[2.5]" />
+            {loading ? 'Recording...' : isEditMode ? 'Update Trade Record' : 'Save Trade to Database'}
           </button>
         </div>
 

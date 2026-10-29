@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
-  Filter,
   Download,
   Printer,
   Plus,
@@ -26,7 +25,6 @@ const TradeHistoryPage = () => {
   const navigate = useNavigate();
   const { formatCurrency } = useSettings();
 
-  // State
   const [trades, setTrades] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
@@ -47,18 +45,15 @@ const TradeHistoryPage = () => {
   const [sortBy, setSortBy] = useState('tradeDate');
   const [sortDir, setSortDir] = useState('desc');
 
-  // Metadata dropdown options
   const [instrumentsList, setInstrumentsList] = useState([]);
   const [strategiesList, setStrategiesList] = useState([]);
   const [exchangesList, setExchangesList] = useState([]);
 
-  // Modals
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [tradeToDelete, setTradeToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch filter options once
   useEffect(() => {
     Promise.all([
       tradesApi.getInstruments(),
@@ -68,10 +63,9 @@ const TradeHistoryPage = () => {
       setInstrumentsList(instRes.data || []);
       setStrategiesList(stratRes.data || []);
       setExchangesList(exRes.data || []);
-    }).catch(err => console.warn('Could not load filter lists', err));
+    }).catch(console.warn);
   }, []);
 
-  // Fetch Trades
   const fetchTrades = async () => {
     setLoading(true);
     try {
@@ -112,19 +106,6 @@ const TradeHistoryPage = () => {
     fetchTrades();
   };
 
-  const handleResetFilters = () => {
-    setSearch('');
-    setStartDate('');
-    setEndDate('');
-    setStatus('ALL');
-    setOutcome('ALL');
-    setDirection('ALL');
-    setInstrument('ALL');
-    setExchange('ALL');
-    setStrategy('ALL');
-    setPage(0);
-  };
-
   const handleDeleteConfirm = async () => {
     if (!tradeToDelete) return;
     setIsDeleting(true);
@@ -144,9 +125,14 @@ const TradeHistoryPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Trade History</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Complete database of executed and open trades ({totalElements} total records)
+          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <span>Trade Ledger & History</span>
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+              {totalElements} LOGS
+            </span>
+          </h1>
+          <p className="text-xs text-slate-400 font-mono mt-0.5">
+            SEARCHABLE DATABASE • REALIZED AUDIT • CSV EXPORT
           </p>
         </div>
 
@@ -154,58 +140,57 @@ const TradeHistoryPage = () => {
           <a
             href={tradesApi.getExportCsvUrl()}
             download
-            className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+            className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#0f1726] border border-[#1e293b] text-slate-300 hover:text-white hover:border-slate-600 transition-colors shadow-sm font-mono"
           >
-            <Download className="w-4 h-4 mr-1.5 text-slate-500" />
-            Export CSV
+            <Download className="w-4 h-4 mr-1.5 text-emerald-400" />
+            CSV Export
           </a>
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+            className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#0f1726] border border-[#1e293b] text-slate-300 hover:text-white hover:border-slate-600 transition-colors shadow-sm font-mono"
           >
-            <Printer className="w-4 h-4 mr-1.5 text-slate-500" />
-            Print Report
+            <Printer className="w-4 h-4 mr-1.5 text-slate-400" />
+            Print
           </button>
           <button
             onClick={() => navigate('/add-trade')}
-            className="inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all shadow-sm shadow-blue-500/20"
+            className="inline-flex items-center px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-500 text-black hover:bg-emerald-400 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
           >
-            <Plus className="w-4 h-4 mr-1.5" />
+            <Plus className="w-4 h-4 mr-1 stroke-[3]" />
             Add Trade
           </button>
         </div>
       </div>
 
       {/* Search and Filters Bar */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3 no-print">
-        {/* Top search & quick outcome filters */}
+      <div className="bg-[#0f1726] p-4 rounded-3xl border border-[#1e293b] shadow-xl space-y-3 no-print">
         <div className="flex flex-col sm:flex-row gap-3">
           <form onSubmit={handleSearchSubmit} className="flex-1 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search symbol, instrument, or strategy..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full text-xs sm:text-sm pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-500"
+              className="w-full text-xs sm:text-sm pl-10 pr-4 py-2 bg-[#080c14] border border-[#1e293b] rounded-xl text-white focus:outline-none focus:border-emerald-500"
             />
           </form>
 
           {/* Quick Outcome Filter Pills */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 font-mono">
             {[
-              { id: 'ALL', label: 'All' },
-              { id: 'WIN', label: 'Wins' },
-              { id: 'LOSS', label: 'Losses' },
-              { id: 'BREAKEVEN', label: 'BE' },
+              { id: 'ALL', label: 'ALL' },
+              { id: 'WIN', label: 'WINS', color: 'text-emerald-400' },
+              { id: 'LOSS', label: 'LOSSES', color: 'text-rose-400' },
+              { id: 'BREAKEVEN', label: 'BE', color: 'text-slate-400' },
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => { setOutcome(item.id); setPage(0); }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
                   outcome === item.id
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20'
+                    : 'bg-[#080c14] text-slate-400 border border-[#1e293b] hover:text-white'
                 }`}
               >
                 {item.label}
@@ -214,34 +199,34 @@ const TradeHistoryPage = () => {
           </div>
         </div>
 
-        {/* Secondary Detailed Filters Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-2 border-t border-slate-100">
+        {/* Detailed Dropdown Filters */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-2 border-t border-[#1a2333] font-mono">
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Start Date</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Start Date</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => { setStartDate(e.target.value); setPage(0); }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">End Date</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">End Date</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => { setEndDate(e.target.value); setPage(0); }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Direction</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Direction</label>
             <select
               value={direction}
               onChange={(e) => { setDirection(e.target.value); setPage(0); }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             >
               <option value="ALL">All Directions</option>
               <option value="LONG">Long (Buy)</option>
@@ -250,11 +235,11 @@ const TradeHistoryPage = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Status</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Status</label>
             <select
               value={status}
               onChange={(e) => { setStatus(e.target.value); setPage(0); }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             >
               <option value="ALL">All Status</option>
               <option value="CLOSED">Closed Only</option>
@@ -263,11 +248,11 @@ const TradeHistoryPage = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Instrument</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Instrument</label>
             <select
               value={instrument}
               onChange={(e) => { setInstrument(e.target.value); setPage(0); }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             >
               <option value="ALL">All Instruments</option>
               {instrumentsList.map(inst => (
@@ -277,7 +262,7 @@ const TradeHistoryPage = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] font-semibold text-slate-400 uppercase mb-0.5">Sort By</label>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-0.5">Sort By</label>
             <select
               value={`${sortBy}-${sortDir}`}
               onChange={(e) => {
@@ -285,7 +270,7 @@ const TradeHistoryPage = () => {
                 setSortBy(sb);
                 setSortDir(sd);
               }}
-              className="w-full text-xs p-1.5 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              className="w-full text-xs p-1.5 bg-[#080c14] border border-[#1e293b] rounded-lg text-white focus:outline-none focus:border-emerald-500"
             >
               <option value="tradeDate-desc">Date (Newest)</option>
               <option value="tradeDate-asc">Date (Oldest)</option>
@@ -299,26 +284,26 @@ const TradeHistoryPage = () => {
       </div>
 
       {/* Trades Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-[#0f1726] rounded-3xl border border-[#1e293b] shadow-xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center p-16">
-            <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
+            <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
           </div>
         ) : trades.length === 0 ? (
           <EmptyState
             title="No trades match current filters"
-            description="Try resetting your filters or log a new trade to see records."
+            description="Your trade history will display here as soon as you record trades."
             actionLabel="Add New Trade"
             onAction={() => navigate('/add-trade')}
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+            <table className="w-full text-left border-collapse text-xs sm:text-sm font-mono">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3.5 px-4">Date & Time</th>
+                <tr className="bg-[#080c14] border-b border-[#1e293b] text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                  <th className="py-3.5 px-4">Date / Time</th>
                   <th className="py-3.5 px-4">Instrument</th>
-                  <th className="py-3.5 px-4">Type</th>
+                  <th className="py-3.5 px-4">Side</th>
                   <th className="py-3.5 px-4 text-right">Entry</th>
                   <th className="py-3.5 px-4 text-right">Exit</th>
                   <th className="py-3.5 px-4 text-right">Qty</th>
@@ -330,7 +315,7 @@ const TradeHistoryPage = () => {
                   <th className="py-3.5 px-4 text-right no-print">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#162032]">
                 {trades.map((t) => {
                   const isLong = t.direction === 'LONG';
                   const isClosed = t.status === 'CLOSED';
@@ -340,66 +325,66 @@ const TradeHistoryPage = () => {
                   return (
                     <tr
                       key={t.id}
-                      className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                      className="hover:bg-[#131d2e] transition-colors group cursor-pointer"
                       onClick={() => { setSelectedTrade(t); setIsDetailOpen(true); }}
                     >
                       {/* Date & Time */}
                       <td className="py-3 px-4">
-                        <span className="font-bold text-slate-800 block">{t.tradeDate}</span>
-                        <span className="text-[11px] text-slate-400">{t.entryTime || '--:--'}</span>
+                        <span className="font-bold text-slate-200 block">{t.tradeDate}</span>
+                        <span className="text-[10px] text-slate-500">{t.entryTime || '--:--'}</span>
                       </td>
 
                       {/* Instrument & Symbol */}
-                      <td className="py-3 px-4">
-                        <span className="font-bold text-slate-900 block truncate max-w-[140px]">{t.instrumentName}</span>
-                        <span className="text-[11px] text-blue-600 font-semibold">{t.symbol}</span>
-                        <span className="text-[10px] text-slate-400 ml-1">({t.exchange || 'NSE'})</span>
+                      <td className="py-3 px-4 font-sans">
+                        <span className="font-bold text-white block truncate max-w-[140px]">{t.instrumentName}</span>
+                        <span className="text-[11px] text-emerald-400 font-mono font-bold">{t.symbol}</span>
+                        <span className="text-[10px] text-slate-500 ml-1">({t.exchange || 'NSE'})</span>
                       </td>
 
                       {/* Direction */}
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          isLong ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                          isLong ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                         }`}>
                           {t.direction}
                         </span>
                       </td>
 
                       {/* Prices */}
-                      <td className="py-3 px-4 text-right font-medium text-slate-800">
+                      <td className="py-3 px-4 text-right font-medium text-slate-200">
                         {formatCurrency(t.entryPrice)}
                       </td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-800">
-                        {t.exitPrice ? formatCurrency(t.exitPrice) : <span className="text-slate-400 italic">Open</span>}
+                      <td className="py-3 px-4 text-right font-medium text-slate-200">
+                        {t.exitPrice ? formatCurrency(t.exitPrice) : <span className="text-amber-400 italic">Open</span>}
                       </td>
-                      <td className="py-3 px-4 text-right font-semibold text-slate-700">
+                      <td className="py-3 px-4 text-right font-bold text-slate-300">
                         {t.quantity}
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-600 font-medium">
+                      <td className="py-3 px-4 text-right text-emerald-400/80">
                         {t.targetPrice ? formatCurrency(t.targetPrice) : '-'}
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-600 font-medium">
+                      <td className="py-3 px-4 text-right text-rose-400/80">
                         {t.stopLoss ? formatCurrency(t.stopLoss) : '-'}
                       </td>
-                      <td className="py-3 px-4 text-right text-slate-500 font-medium">
+                      <td className="py-3 px-4 text-right text-slate-400">
                         {formatCurrency((Number(t.brokerage) || 0) + (Number(t.otherCharges) || 0))}
                       </td>
 
                       {/* Net PnL */}
                       <td className="py-3 px-4 text-right">
                         {isClosed ? (
-                          <span className={`font-bold text-sm ${isWin ? 'text-emerald-600' : isLoss ? 'text-rose-600' : 'text-slate-600'}`}>
+                          <span className={`font-black text-sm ${isWin ? 'text-emerald-400' : isLoss ? 'text-rose-400' : 'text-slate-400'}`}>
                             {formatCurrency(t.netPnl)}
                           </span>
                         ) : (
-                          <span className="text-amber-600 font-semibold text-xs">Open Position</span>
+                          <span className="text-amber-400 font-semibold text-xs">OPEN</span>
                         )}
                       </td>
 
                       {/* Status */}
                       <td className="py-3 px-4 text-center">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          isClosed ? 'bg-slate-100 text-slate-700' : 'bg-amber-100 text-amber-800 animate-pulse'
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          isClosed ? 'bg-slate-800 text-slate-300' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                         }`}>
                           {t.status}
                         </span>
@@ -410,21 +395,21 @@ const TradeHistoryPage = () => {
                         <div className="flex items-center justify-end space-x-1">
                           <button
                             onClick={() => { setSelectedTrade(t); setIsDetailOpen(true); }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800"
                             title="View Full Details"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => navigate(`/edit-trade/${t.id}`)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
                             title="Edit Trade"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setTradeToDelete(t)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
                             title="Delete Trade"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -441,7 +426,7 @@ const TradeHistoryPage = () => {
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 text-xs text-slate-500 no-print">
+          <div className="flex items-center justify-between p-4 border-t border-[#1a2333] text-xs text-slate-400 no-print font-mono">
             <div>
               Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, totalElements)} of {totalElements} trades
             </div>
@@ -449,17 +434,17 @@ const TradeHistoryPage = () => {
               <button
                 disabled={page === 0}
                 onClick={() => setPage(p => p - 1)}
-                className="p-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                className="p-1.5 rounded-lg border border-[#1e293b] disabled:opacity-40 hover:bg-slate-800 text-slate-300"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="font-semibold text-slate-700">
+              <span className="font-bold text-white">
                 Page {page + 1} of {totalPages}
               </span>
               <button
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage(p => p + 1)}
-                className="p-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50"
+                className="p-1.5 rounded-lg border border-[#1e293b] disabled:opacity-40 hover:bg-slate-800 text-slate-300"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -468,18 +453,16 @@ const TradeHistoryPage = () => {
         )}
       </div>
 
-      {/* Trade Detail Modal */}
       <TradeModal
         trade={selectedTrade}
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
       />
 
-      {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={Boolean(tradeToDelete)}
         title="Delete Trade Record"
-        message={`Are you sure you want to delete trade #${tradeToDelete?.id} (${tradeToDelete?.symbol})? This action will permanently remove it from your journal and recalculate affected balances.`}
+        message={`Are you sure you want to delete trade #${tradeToDelete?.id} (${tradeToDelete?.symbol})? This action will permanently remove it from your journal.`}
         confirmLabel={isDeleting ? 'Deleting...' : 'Delete Permanently'}
         onConfirm={handleDeleteConfirm}
         onCancel={() => setTradeToDelete(null)}

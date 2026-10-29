@@ -19,7 +19,7 @@ function App() {
   return (
     <SettingsProvider>
       <Router>
-        <div className="flex min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-blue-600 selection:text-white">
+        <div className="flex min-h-screen bg-[#080c14] text-slate-100 antialiased selection:bg-emerald-500 selection:text-black">
           {/* Sidebar */}
           <Sidebar
             isOpen={isSidebarOpen}

@@ -26,22 +26,22 @@ const NotebookView = ({
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto my-4">
       {/* Top action bar */}
       <div className="w-full flex justify-between items-center mb-4 no-print px-2">
-        <div className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+        <div className="text-sm font-semibold text-slate-300 flex items-center gap-2 font-mono">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           Physical Notebook Replica Mode
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={handlePrint}
-            className="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+            className="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-dark-card border border-dark-border text-slate-300 hover:text-white hover:border-slate-700 transition-colors shadow-sm"
           >
-            <Printer className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+            <Printer className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
             Print / Save PDF
           </button>
           <button
             onClick={onSave}
             disabled={saving}
-            className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50"
+            className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-black active:scale-95 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Journal Notes'}
           </button>
