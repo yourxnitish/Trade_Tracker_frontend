@@ -578,11 +578,12 @@
 
   <script>
     // ========== CONFIG ==========
+    const DEFAULT_API_URL = 'https://trade-tracker-backend-3.onrender.com';
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('api')) {
       localStorage.setItem('API_URL', urlParams.get('api'));
     }
-    const API_URL = localStorage.getItem('API_URL') || (window.location.protocol.startsWith('http') ? window.location.origin : 'http://localhost:3001');
+    const API_URL = localStorage.getItem('API_URL') || DEFAULT_API_URL;
 
     // ========== DATE HELPERS ==========
     function getLocalDateString(d = new Date()) {
