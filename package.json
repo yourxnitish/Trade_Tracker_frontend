@@ -1,0 +1,17 @@
+{
+  "name": "trade-tracker-frontend",
+  "version": "1.0.0",
+  "description": "Trade Tracker - Profit Pages Trading Journal Frontend",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "trading",
+    "journal",
+    "stocks",
+    "profit-pages"
+  ],
+  "author": "yourxnitish",
+  "license": "ISC"
+}
